@@ -175,11 +175,22 @@
           "when": "view == extensionBookmarkerView"
         }
       ],
+      "extension/context": [
+        {
+          "command": "extension-bookmarker.addBookmark",
+          "when": "sideBarFocus && activeViewlet == 'workbench.view.extensions'"
+        }
+      ],
       "view/item/context": [
         {
           "command": "extension-bookmarker.removeBookmark",
           "group": "0_extension_bookmarker",
           "when": "view == extensionBookmarkerView && viewItem == bookmarkedExtension"
+        },
+        {
+          "command": "extension-bookmarker.addBookmark",
+          "group": "1_category",
+          "when": "view == extensionBookmarkerView && (viewItem == category || viewItem == defaultCategory)"
         },
         {
           "command": "extension-bookmarker.renameCategory",

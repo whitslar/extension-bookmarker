@@ -119,10 +119,21 @@ function activate(context) {
     }));
 
     // Command to add a bookmark
-    context.subscriptions.push(vscode.commands.registerCommand('extension-bookmarker.addBookmark', async () => {
+    context.subscriptions.push(vscode.commands.registerCommand('extension-bookmarker.addBookmark', async (item) => {
         const categories = vscode.workspace.getConfiguration('extension-bookmarker').get('categories', []);
         const bookmarks = vscode.workspace.getConfiguration('extension-bookmarker').get('bookmarks', []);
-        const selectedExtension = await vscode.window.showInputBox({ prompt: 'Enter the identifier of the extension (publisher.extensionname)' });
+        let selectedExtension;
+        let selectedCategory;
+
+        if (item && ['category', 'defaultCategory'].includes(item.contextValue) ) {
+            selectedCategory = categories.find(category => category === item.label);
+        } else {
+            selectedExtension = item;
+        }
+
+        if (!selectedExtension) {
+            selectedExtension = await vscode.window.showInputBox({ prompt: 'Enter the identifier of the extension (publisher.extensionname)' });
+        }
 
         if (selectedExtension && selectedExtension.trim() !== '' && !bookmarks.find(bookmark => bookmark.id === selectedExtension)) {
             // Sort categories alphabetically, but keep 'Default' at the top
@@ -131,7 +142,10 @@ function activate(context) {
                 if (b === 'Default') return 1;
                 return a.localeCompare(b);
             });
-            const selectedCategory = await vscode.window.showQuickPick(sortedCategories, { placeHolder: 'Select a category for the bookmark' });
+
+            if (!selectedCategory) {
+                selectedCategory = await vscode.window.showQuickPick(sortedCategories, { placeHolder: 'Select a category for the bookmark' });
+            }
 
             if (selectedCategory) {
                 let [publisher, extensionName] = selectedExtension.split('.');
